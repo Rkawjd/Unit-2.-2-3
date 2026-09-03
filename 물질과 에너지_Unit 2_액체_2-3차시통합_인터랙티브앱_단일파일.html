@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>액체의 끓는점 탐구 | 물질과 에너지</title>
+  <meta name="description" content="외부 압력, 증기압, 분자 간 상호작용과 끓는점의 관계를 데이터와 상호작용하며 탐구하는 고등학교 화학 학습 앱">
+  <style>
+
+:root {
+  --bg: #f5f7f9;
+  --panel: #ffffff;
+  --text: #1f2933;
+  --muted: #637381;
+  --line: #dbe3e8;
+  --accent: #285f7d;
+  --accent-soft: #eaf3f7;
+  --good: #2f6f52;
+  --good-soft: #eaf6ef;
+  --warn: #8b642d;
+  --warn-soft: #fff6e6;
+  --bad: #9b4141;
+  --bad-soft: #fff0f0;
+  --series1: #526d82;
+  --series2: #8b6c47;
+  --series3: #5d7f68;
+  --series4: #7a648d;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Pretendard, "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  line-height: 1.65;
+}
+button, select, textarea, input { font: inherit; }
+button { cursor: pointer; }
+.wrap { width: min(1160px, calc(100% - 32px)); margin: 0 auto; }
+.topbar {
+  background: #173f56;
+  color: white;
+  padding: 28px 0 24px;
+}
+.topbar-inner { display: flex; justify-content: space-between; align-items: end; gap: 20px; }
+.eyebrow { margin: 0 0 6px; font-size: 13px; opacity: .78; letter-spacing: .02em; }
+h1 { margin: 0; font-size: clamp(24px, 3vw, 36px); line-height: 1.25; }
+h2 { margin: 0; font-size: clamp(22px, 2.5vw, 30px); line-height: 1.3; }
+h3 { margin: 0 0 10px; font-size: 19px; }
+p { margin: 6px 0 12px; }
+.mode-pill {
+  white-space: nowrap;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 13px;
+}
+main { padding: 24px 0 52px; }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+}
+.intro { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.record-box {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+}
+.record-box.wide { margin-top: 14px; min-width: 0; }
+.progress-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 18px 0 8px;
+}
+.progress-nav a {
+  text-decoration: none;
+  color: var(--accent);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 11px;
+  font-size: 13px;
+}
+.lesson-section { padding-top: 38px; }
+.section-head { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+.section-head p { color: var(--muted); margin-top: 5px; }
+.step {
+  flex: 0 0 auto;
+  background: var(--accent);
+  color: white;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  margin-top: 3px;
+}
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.question { font-weight: 700; color: #2b4250; }
+.choice-list { display: grid; gap: 9px; }
+.choice-list label, .checklist label, .checkbox-row label {
+  display: flex; align-items: flex-start; gap: 8px;
+}
+input[type="radio"], input[type="checkbox"] { margin-top: .35em; }
+.primary, .secondary {
+  border-radius: 10px;
+  min-height: 42px;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  font-weight: 700;
+}
+.primary { background: var(--accent); color: white; }
+.secondary { background: white; color: var(--accent); border-color: #b8ccd7; }
+.primary:hover, .secondary:hover { filter: brightness(.97); }
+.feedback { min-height: 24px; margin-top: 10px; border-radius: 9px; padding: 0; }
+.feedback.good, .inline-feedback.good { color: var(--good); }
+.feedback.bad, .inline-feedback.bad { color: var(--bad); }
+.feedback.boxed { padding: 10px 12px; background: var(--good-soft); }
+.feedback.bad.boxed { background: var(--bad-soft); }
+.concept-card { display: flex; flex-direction: column; justify-content: center; }
+.equation { display: flex; align-items: center; justify-content: center; gap: 15px; font-size: 20px; margin: 18px 0 4px; }
+.equation span { border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; background: #fafcfd; }
+.arrow { text-align: center; font-size: 30px; color: var(--muted); }
+.center { text-align: center; }
+.note, .hint-text { color: var(--muted); font-size: 13px; }
+.control-row { display: grid; gap: 10px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.preset-row, .checkbox-row, .button-choice, .action-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.chart-and-readout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(210px, 1fr); gap: 16px; margin-top: 16px; align-items: stretch; }
+.chart-box {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 8px;
+  background: #fcfdfe;
+  overflow-x: auto;
+}
+.chart-box svg { width: 100%; min-width: 560px; display: block; }
+.readout {
+  border-radius: 14px;
+  padding: 18px;
+  background: #f7fafb;
+  border: 1px solid var(--line);
+}
+.readout strong { display: block; font-size: 28px; color: var(--accent); margin: 6px 0 8px; }
+.small-label { font-size: 12px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+.prediction-strip, .mini-task {
+  margin-top: 14px; padding: 12px; background: #f7f9fa; border-radius: 12px; border: 1px solid var(--line);
+}
+select, textarea {
+  border: 1px solid #b9c7d0;
+  border-radius: 9px;
+  background: white;
+  color: var(--text);
+  padding: 8px 10px;
+}
+textarea { width: 100%; resize: vertical; min-height: 140px; }
+.inline-feedback { margin-left: 6px; font-size: 13px; font-weight: 700; }
+.ranking { display: grid; gap: 8px; margin-top: 10px; }
+.rank-item { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 6px; font-size: 13px; }
+.question-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.tab { border: 1px solid var(--line); background: white; color: var(--text); border-radius: 999px; padding: 8px 13px; font-weight: 700; }
+.tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+.data-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(260px, .7fr); gap: 18px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { border: 1px solid var(--line); padding: 8px 9px; text-align: center; }
+th { background: #edf3f6; color: #294d62; }
+.chain-builder { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; }
+.card-bank, .chain-result { display: flex; gap: 8px; flex-wrap: wrap; min-height: 76px; align-content: flex-start; }
+.chain-card {
+  border: 1px solid #bdcad2;
+  background: white;
+  color: #2c4554;
+  border-radius: 10px;
+  padding: 9px 11px;
+  min-height: 42px;
+}
+.chain-card.selected { opacity: .45; }
+.chain-result .chain-card { background: var(--accent-soft); border-color: #9db9c8; }
+.chain-arrow { font-size: 26px; color: var(--muted); }
+.action-row { justify-content: flex-end; margin-top: 12px; }
+.checklist { display: grid; gap: 7px; margin-top: 12px; }
+.follow { margin-top: 18px; }
+.final-summary { margin-top: 18px; padding: 16px 18px; border-left: 5px solid var(--good); background: var(--good-soft); border-radius: 10px; }
+.teacher-details { margin-top: 38px; border-top: 1px solid var(--line); padding-top: 14px; color: var(--muted); }
+.teacher-details summary { cursor: pointer; font-weight: 700; color: var(--text); }
+.footer { background: #e9eef1; color: #60717d; padding: 18px 0; font-size: 12px; }
+
+.axis { stroke: #70818c; stroke-width: 1.2; }
+.grid { stroke: #e3e9ed; stroke-width: 1; }
+.tick-text { fill: #667986; font-size: 12px; }
+.axis-label { fill: #405563; font-size: 13px; font-weight: 700; }
+.curve { fill: none; stroke-width: 3; }
+.pressure-line { stroke: #9a6737; stroke-width: 2.5; stroke-dasharray: 8 6; }
+.marker { fill: #173f56; stroke: white; stroke-width: 2; }
+.guide { stroke: #b7c3cb; stroke-width: 1; stroke-dasharray: 4 4; }
+.legend-text { fill: #415662; font-size: 12px; }
+
+@media (max-width: 820px) {
+  .topbar-inner, .intro { flex-direction: column; align-items: flex-start; }
+  .mode-pill { white-space: normal; }
+  .record-box { min-width: 0; width: 100%; }
+  .two-col, .question-grid, .data-layout, .chart-and-readout { grid-template-columns: 1fr; }
+  .chain-builder { grid-template-columns: 1fr; }
+  .chain-arrow { transform: rotate(90deg); text-align: center; }
+}
+@media (max-width: 520px) {
+  .wrap { width: min(100% - 20px, 1160px); }
+  .panel { padding: 15px; border-radius: 12px; }
+  .progress-nav { gap: 6px; }
+  .progress-nav a { font-size: 12px; padding: 6px 9px; }
+  .section-head { gap: 9px; }
+  .preset-row .secondary, .button-choice .secondary { flex: 1 1 auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div>
+        <p class="eyebrow">물질과 에너지 · Strand 1 · 통합 2–3차시</p>
+        <h1>액체는 언제 끓으며, 왜 액체마다 끓는점이 다를까?</h1>
+      </div>
+      <div class="mode-pill">탐구형 인터랙티브 자료</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="intro panel">
+      <div>
+        <h2>이 앱의 사용법</h2>
+        <p>값을 보기 전에 <strong>먼저 예측</strong>하고, 조작한 뒤 <strong>관계를 해석</strong>하세요. 이 앱은 답안을 저장하지 않습니다.</p>
+      </div>
+      <div class="record-box">
+        <strong>Google 문서에는 무엇을 기록할까?</strong>
+        <span>예측 → 관찰한 변화 → 근거 → 수정한 설명</span>
+      </div>
+    </section>
+
+    <nav class="progress-nav" aria-label="탐구 단계">
+      <a href="#step1">1. 끓는 조건</a>
+      <a href="#step2">2. 외부 압력</a>
+      <a href="#step3">3. 액체 비교</a>
+      <a href="#step4">4. 상호작용 데이터</a>
+      <a href="#step5">5. 인과 사슬</a>
+      <a href="#step6">6. 일반화·전이</a>
+    </nav>
+
+    <section id="step1" class="lesson-section">
+      <div class="section-head">
+        <span class="step">STEP 1</span>
+        <div>
+          <h2>증기압과 외부 압력이 같아지면?</h2>
+          <p>1차시에서 배운 증기압을 이용해 끓음의 조건을 예측해 봅시다.</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <article class="panel">
+          <h3>먼저 예측</h3>
+          <p class="question">100 ℃에서 물의 증기압과 외부 압력이 모두 760 mmHg라면 액체 내부의 기포는 어떻게 될까?</p>
+          <form id="boilPrediction" class="choice-list">
+            <label><input type="radio" name="boil" value="collapse"> 생기더라도 바로 사라진다.</label>
+            <label><input type="radio" name="boil" value="grow"> 유지되거나 성장할 수 있다.</label>
+            <label><input type="radio" name="boil" value="none"> 아무 변화도 없다.</label>
+            <button class="primary" type="submit">예측 확인</button>
+          </form>
+          <div id="boilFeedback" class="feedback" aria-live="polite"></div>
+        </article>
+
+        <article class="panel concept-card">
+          <h3>핵심 관계</h3>
+          <div class="equation">
+            <span>액체의 증기압</span><strong>=</strong><span>외부 압력</span>
+          </div>
+          <div class="arrow">↓</div>
+          <p class="center"><strong>액체 내부의 기포가 유지·성장할 수 있음 → 끓음</strong></p>
+          <p class="note">다음 단계에서는 외부 압력을 직접 바꾸며 ‘같은 액체의 끓는점’이 어떻게 변하는지 확인합니다.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="step2" class="lesson-section">
+      <div class="section-head">
+        <span class="step">STEP 2</span>
+        <div>
+          <h2>같은 물도 외부 압력이 달라지면?</h2>
+          <p>외부 압력 수평선과 물의 증기압 곡선이 만나는 온도가 끓는점입니다.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="control-row">
+          <label for="pressureSlider"><strong>외부 압력</strong> <span id="pressureValue">760</span> mmHg</label>
+          <input id="pressureSlider" type="range" min="400" max="1200" step="10" value="760">
+          <div class="preset-row">
+            <button type="button" class="secondary preset" data-pressure="600">높은 산 600</button>
+            <button type="button" class="secondary preset" data-pressure="760">평지 760</button>
+            <button type="button" class="secondary preset" data-pressure="1100">압력솥 1100</button>
+          </div>
+        </div>
+
+        <div class="chart-and-readout">
+          <div class="chart-box">
+            <svg id="waterChart" viewBox="0 0 760 430" role="img" aria-label="온도에 따른 물의 증기압 곡선과 외부 압력"></svg>
+          </div>
+          <aside class="readout">
+            <span class="small-label">현재 조건의 끓는점</span>
+            <strong id="boilingTemp">100.0 ℃</strong>
+            <p id="pressureInterpretation">외부 압력이 760 mmHg일 때 물은 약 100 ℃에서 끓습니다.</p>
+          </aside>
+        </div>
+
+        <div class="prediction-strip">
+          <strong>관계를 문장으로:</strong>
+          외부 압력이 낮아지면 증기압이 외부 압력과 같아지는 온도는
+          <select id="pressureRelation">
+            <option value="">선택</option>
+            <option value="lower">낮아진다</option>
+            <option value="higher">높아진다</option>
+            <option value="same">같다</option>
+          </select>
+          <button type="button" class="secondary" id="checkPressureRelation">확인</button>
+          <span id="pressureRelationFeedback" class="inline-feedback" aria-live="polite"></span>
+        </div>
+      </div>
+
+      <div class="record-box wide">
+        <strong>Google 문서 기록</strong>
+        <span>“같은 액체라도 외부 압력이 달라지면 끓는점이 달라진다.”를 그래프의 교점 변화로 설명하세요.</span>
+      </div>
+    </section>
+
+    <section id="step3" class="lesson-section">
+      <div class="section-head">
+        <span class="step">STEP 3</span>
+        <div>
+          <h2>같은 외부 압력인데 액체마다 왜 끓는점이 다를까?</h2>
+          <p>비상교육 교과서에 제시된 네 액체의 기준 끓는점을 기준으로 증기압 곡선을 비교합니다.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="control-row">
+          <label for="tempSlider"><strong>비교 온도</strong> <span id="tempValue">25</span> ℃</label>
+          <input id="tempSlider" type="range" min="20" max="120" step="1" value="25">
+          <div class="checkbox-row" id="liquidChecks">
+            <label><input type="checkbox" value="ether" checked> 다이에틸 에터</label>
+            <label><input type="checkbox" value="ethanol" checked> 에탄올</label>
+            <label><input type="checkbox" value="water" checked> 물</label>
+            <label><input type="checkbox" value="acetic" checked> 아세트산</label>
+          </div>
+        </div>
+
+        <div class="chart-and-readout multi">
+          <div class="chart-box">
+            <svg id="multiChart" viewBox="0 0 760 430" role="img" aria-label="여러 액체의 온도에 따른 증기압 교육용 근사 곡선"></svg>
+          </div>
+          <aside class="readout">
+            <span class="small-label"><span id="tempReadout">25</span> ℃에서</span>
+            <div id="liquidRanking" class="ranking"></div>
+            <p class="note">곡선은 교과서의 관계 탐색을 위한 교육용 근사 곡선입니다. 기준 끓는점은 교과서 제시값을 사용합니다.</p>
+          </aside>
+        </div>
+
+        <div class="question-grid">
+          <div class="mini-task">
+            <strong>Q1.</strong> 같은 온도에서 증기압이 가장 높은 액체는 기준 끓는점이 대체로
+            <select id="vpBpRelation">
+              <option value="">선택</option>
+              <option value="lower">낮다</option>
+              <option value="higher">높다</option>
+              <option value="none">관련 없다</option>
+            </select>
+            <button type="button" class="secondary" id="checkVpBp">확인</button>
+            <span id="vpBpFeedback" class="inline-feedback"></span>
+          </div>
+          <div class="mini-task">
+            <strong>Q2.</strong> 그렇다면 “액체마다 증기압이 다른 이유”를 설명하려면 무엇을 더 알아야 할까요?
+            <p class="hint-text">다음 단계에서 분자량·쌍극자 모멘트·수소 결합과 끓는점 데이터를 탐색합니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="step4" class="lesson-section">
+      <div class="section-head">
+        <span class="step">STEP 4</span>
+        <div>
+          <h2>분자 사이의 상호작용을 데이터에서 찾아보기</h2>
+          <p>하나의 규칙으로 모든 물질을 설명하기보다, 조건을 통제한 비교와 ‘예외’를 이용합니다.</p>
+        </div>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="상호작용 데이터 세트">
+        <button type="button" class="tab active" data-tab="dipole">A. 쌍극자–쌍극자 힘</button>
+        <button type="button" class="tab" data-tab="dispersion">B. 분산력</button>
+        <button type="button" class="tab" data-tab="hbond">C. 수소 결합</button>
+      </div>
+
+      <article class="panel dataset active" id="dipole" data-panel="dipole">
+        <h3>A. 분자량이 비슷한 극성 분자</h3>
+        <p>분자량이 비슷하므로, 다른 변인이 끓는점과 어떤 관계를 보이는지 살펴볼 수 있습니다.</p>
+        <div class="data-layout">
+          <table>
+            <thead><tr><th>물질</th><th>분자량</th><th>쌍극자 모멘트(D)</th><th>끓는점(℃)</th></tr></thead>
+            <tbody>
+              <tr><td>CH₃OCH₃</td><td>46</td><td>1.30</td><td>-25</td></tr>
+              <tr><td>CH₃CHO</td><td>44</td><td>2.75</td><td>21</td></tr>
+              <tr><td>CH₃CN</td><td>41</td><td>3.93</td><td>82</td></tr>
+            </tbody>
+          </table>
+          <div>
+            <p class="question">분자량과 쌍극자 모멘트 중, 이 세 물질의 끓는점 차이와 더 일관된 관계를 보이는 것은?</p>
+            <div class="button-choice" id="dipoleChoice">
+              <button type="button" class="secondary" data-answer="mass">분자량</button>
+              <button type="button" class="secondary" data-answer="dipole">쌍극자 모멘트</button>
+            </div>
+            <div id="dipoleFeedback" class="feedback"></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel dataset" id="dispersion" data-panel="dispersion" hidden>
+        <h3>B. 무극성 분자: 프로페인과 뷰테인</h3>
+        <div class="data-layout">
+          <table>
+            <thead><tr><th>물질</th><th>분자량</th><th>끓는점(℃)</th></tr></thead>
+            <tbody>
+              <tr><td>프로페인 C₃H₈</td><td>44.1</td><td>-42.1</td></tr>
+              <tr><td>뷰테인 C₄H₁₀</td><td>58.1</td><td>-0.5</td></tr>
+            </tbody>
+          </table>
+          <div>
+            <p class="question">두 물질은 모두 무극성입니다. 어느 물질의 분산력이 더 클 것으로 예측합니까?</p>
+            <div class="button-choice" id="dispersionChoice">
+              <button type="button" class="secondary" data-answer="propane">프로페인</button>
+              <button type="button" class="secondary" data-answer="butane">뷰테인</button>
+            </div>
+            <div id="dispersionFeedback" class="feedback"></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel dataset" id="hbond" data-panel="hbond" hidden>
+        <h3>C. 같은 족 수소 화합물에서 나타나는 ‘예외’</h3>
+        <div class="data-layout">
+          <table>
+            <thead><tr><th>물질</th><th>중심 원자 주기</th><th>끓는점(℃)</th></tr></thead>
+            <tbody>
+              <tr><td>H₂O</td><td>2</td><td>100</td></tr>
+              <tr><td>H₂S</td><td>3</td><td>-60.3</td></tr>
+              <tr><td>H₂Se</td><td>4</td><td>-41.3</td></tr>
+              <tr><td>H₂Te</td><td>5</td><td>-2.2</td></tr>
+            </tbody>
+          </table>
+          <div>
+            <p class="question">H₂S → H₂Se → H₂Te의 경향을 단순히 H₂O까지 연장하면 실제값과 크게 어긋납니다. 가장 적절한 추가 설명은?</p>
+            <select id="hbondSelect">
+              <option value="">선택</option>
+              <option value="mass">H₂O의 분자량이 가장 커서</option>
+              <option value="hbond">H₂O 분자 사이에 강한 수소 결합이 형성되어</option>
+              <option value="pressure">H₂O에만 외부 압력이 더 크게 작용해서</option>
+            </select>
+            <button type="button" class="secondary" id="checkHbond">확인</button>
+            <div id="hbondFeedback" class="feedback"></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="step5" class="lesson-section">
+      <div class="section-head">
+        <span class="step">STEP 5</span>
+        <div>
+          <h2>끓는점 설명의 인과 사슬 만들기</h2>
+          <p>아래 카드를 원인에서 결과 순서로 클릭하세요. 잘못 누르면 다시 시작할 수 있습니다.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="chain-builder">
+          <div class="card-bank" id="chainBank"></div>
+          <div class="chain-arrow">→</div>
+          <div class="chain-target">
+            <span class="small-label">내가 만든 설명</span>
+            <div id="chainResult" class="chain-result"></div>
+          </div>
+        </div>
+        <div class="action-row">
+          <button type="button" class="secondary" id="resetChain">다시 배열</button>
+          <button type="button" class="primary" id="checkChain">설명 확인</button>
+        </div>
+        <div id="chainFeedback" class="feedback"></div>
+      </div>
+
+      <div class="record-box wide">
+        <strong>Google 문서 기록</strong>
+        <span>‘분자 간 상호작용 → 증기압 → 외부 압력 → 끓는점’을 하나의 문단으로 연결해 설명하세요.</span>
+      </div>
+    </section>
+
+    <section id="step6" class="lesson-section">
+      <div class="section-head">
+        <span class="step">STEP 6</span>
+        <div>
+          <h2>일반화하고 새로운 상황에 적용하기</h2>
+          <p>두 시간 동안 찾은 두 축 — <strong>외부 조건</strong>과 <strong>분자 간 상호작용</strong> — 을 함께 사용합니다.</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <article class="panel">
+          <h3>나의 일반화 문장</h3>
+          <textarea id="generalization" rows="6" placeholder="예: 액체는 ... 때 끓으며, 외부 압력이 ... 하면 ... . 또한 분자 간 상호작용이 ... 액체는 같은 온도에서 증기압이 ... 하므로 ... ."></textarea>
+          <div class="checklist">
+            <label><input type="checkbox" data-key="equal"> 증기압 = 외부 압력이라는 끓음 조건이 들어갔는가?</label>
+            <label><input type="checkbox" data-key="external"> 외부 압력이 같은 액체의 끓는점을 바꾼다는 내용이 있는가?</label>
+            <label><input type="checkbox" data-key="imf"> 분자 간 상호작용이 액체별 증기압·끓는점 차이와 연결되는가?</label>
+            <label><input type="checkbox" data-key="causal"> 단어 나열이 아니라 인과 관계로 설명했는가?</label>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h3>전이: 겨울철 LPG</h3>
+          <p>프로페인(끓는점 -42.1 ℃)과 뷰테인(끓는점 -0.5 ℃) 중 추운 겨울에 더 쉽게 기화하는 성분은?</p>
+          <div class="button-choice" id="lpgChoice">
+            <button type="button" class="secondary" data-answer="propane">프로페인</button>
+            <button type="button" class="secondary" data-answer="butane">뷰테인</button>
+          </div>
+          <div id="lpgFeedback" class="feedback"></div>
+          <p class="question follow">왜 겨울철 자동차용 LPG에서는 뷰테인의 비율을 낮추는지, <strong>끓는점과 기화 가능성</strong>을 이용해 Google 문서에 설명하세요.</p>
+        </article>
+      </div>
+
+      <div class="final-summary">
+        <strong>Strand 1 일반화</strong>
+        <p>액체의 거시적 성질은 입자 사이의 상호작용과 외부 조건에 따라 달라지며, 증기압과 외부 압력의 관계는 액체의 끓는점을 결정한다.</p>
+      </div>
+    </section>
+
+    <details class="teacher-details">
+      <summary>교사용 자료·수치 안내</summary>
+      <div>
+        <p>• 쌍극자 모멘트 자료와 기준 끓는점(다이에틸 에터 34.5 ℃, 에탄올 78.2 ℃, 물 100 ℃, 아세트산 117.9 ℃)은 비상교육 『물질과 에너지』 교과서의 액체 단원 자료를 반영했습니다.</p>
+        <p>• 여러 액체 증기압 곡선은 기준 끓는점을 정확히 통과하도록 Clausius–Clapeyron 관계를 단순 적용한 <strong>교육용 근사 곡선</strong>입니다. 정밀 물성 계산이나 실험값 대체용으로 사용하지 않습니다.</p>
+        <p>• 학생 응답은 저장하지 않습니다. 개념 이해의 증거는 별도 Google 문서 활동지에 남기도록 설계했습니다.</p>
+      </div>
+    </details>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">물질과 에너지 · 액체 통합 2–3차시 · 개념 이해 지원용 정적 웹 앱</div>
+  </footer>
+
+  <script>
+
+(() => {
+  "use strict";
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+  function setFeedback(el, message, ok = true, boxed = false) {
+    el.textContent = message;
+    el.className = `feedback ${ok ? "good" : "bad"}${boxed ? " boxed" : ""}`;
+  }
+
+  // STEP 1
+  $("#boilPrediction").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const chosen = $('input[name="boil"]:checked');
+    if (!chosen) {
+      setFeedback($("#boilFeedback"), "먼저 하나를 선택하세요.", false, true);
+      return;
+    }
+    if (chosen.value === "grow") {
+      setFeedback($("#boilFeedback"), "좋습니다. 증기압이 외부 압력과 같아지면 액체 내부의 기포가 유지·성장할 수 있어 끓음이 가능해집니다.", true, true);
+    } else {
+      setFeedback($("#boilFeedback"), "다시 생각해 보세요. 기포 안쪽의 증기압과 바깥쪽 외부 압력이 같다면 기포가 압력 차이 때문에 바로 찌그러질 이유가 줄어듭니다.", false, true);
+    }
+  });
+
+  // SVG helpers
+  const NS = "http://www.w3.org/2000/svg";
+  function svgEl(name, attrs = {}, text = "") {
+    const el = document.createElementNS(NS, name);
+    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+    if (text) el.textContent = text;
+    return el;
+  }
+  function clearSvg(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+  const chart = { w: 760, h: 430, m: { l: 66, r: 28, t: 24, b: 54 } };
+  function scaleLinear(domainMin, domainMax, rangeMin, rangeMax) {
+    return (v) => rangeMin + (v - domainMin) * (rangeMax - rangeMin) / (domainMax - domainMin);
+  }
+  function drawAxes(svg, xDomain, yDomain, xTicks, yTicks, xLabel, yLabel) {
+    const { w, h, m } = chart;
+    const x = scaleLinear(xDomain[0], xDomain[1], m.l, w - m.r);
+    const y = scaleLinear(yDomain[0], yDomain[1], h - m.b, m.t);
+    xTicks.forEach(t => {
+      svg.appendChild(svgEl("line", { x1: x(t), y1: m.t, x2: x(t), y2: h - m.b, class: "grid" }));
+      svg.appendChild(svgEl("text", { x: x(t), y: h - m.b + 22, "text-anchor": "middle", class: "tick-text" }, String(t)));
+    });
+    yTicks.forEach(t => {
+      svg.appendChild(svgEl("line", { x1: m.l, y1: y(t), x2: w - m.r, y2: y(t), class: "grid" }));
+      svg.appendChild(svgEl("text", { x: m.l - 10, y: y(t) + 4, "text-anchor": "end", class: "tick-text" }, String(t)));
+    });
+    svg.appendChild(svgEl("line", { x1: m.l, y1: h - m.b, x2: w - m.r, y2: h - m.b, class: "axis" }));
+    svg.appendChild(svgEl("line", { x1: m.l, y1: m.t, x2: m.l, y2: h - m.b, class: "axis" }));
+    svg.appendChild(svgEl("text", { x: (m.l + w - m.r) / 2, y: h - 12, "text-anchor": "middle", class: "axis-label" }, xLabel));
+    const yl = svgEl("text", { x: 17, y: (m.t + h - m.b) / 2, "text-anchor": "middle", class: "axis-label", transform: `rotate(-90 17 ${(m.t + h - m.b) / 2})` }, yLabel);
+    svg.appendChild(yl);
+    return { x, y };
+  }
+
+  // Antoine equation for water, mmHg and degC
+  function waterVaporPressure(tempC) {
+    let A, B, C;
+    if (tempC <= 99) {
+      A = 8.07131; B = 1730.63; C = 233.426;
+    } else {
+      A = 8.14019; B = 1810.94; C = 244.485;
+    }
+    return Math.pow(10, A - B / (C + tempC));
+  }
+  function waterBoilingTemp(pressure) {
+    let lo = 40, hi = 140;
+    for (let i = 0; i < 60; i++) {
+      const mid = (lo + hi) / 2;
+      if (waterVaporPressure(mid) < pressure) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  const waterSvg = $("#waterChart");
+  function drawWaterChart(pressure) {
+    clearSvg(waterSvg);
+    const { x, y } = drawAxes(waterSvg, [40, 125], [0, 1300], [40, 60, 80, 100, 120], [0, 200, 400, 600, 760, 1000, 1200], "온도 (℃)", "증기압 (mmHg)");
+    let d = "";
+    for (let t = 40; t <= 125; t += 1) {
+      const p = Math.min(1300, waterVaporPressure(t));
+      d += `${t === 40 ? "M" : "L"}${x(t).toFixed(2)},${y(p).toFixed(2)} `;
+    }
+    waterSvg.appendChild(svgEl("path", { d, class: "curve", stroke: "var(--series1)" }));
+    waterSvg.appendChild(svgEl("text", { x: x(72), y: y(waterVaporPressure(72)) - 10, class: "legend-text" }, "물의 증기압 곡선"));
+
+    const bt = waterBoilingTemp(pressure);
+    waterSvg.appendChild(svgEl("line", { x1: x(40), y1: y(pressure), x2: x(125), y2: y(pressure), class: "pressure-line" }));
+    waterSvg.appendChild(svgEl("text", { x: x(42), y: y(pressure) - 8, class: "legend-text" }, `외부 압력 ${pressure} mmHg`));
+    waterSvg.appendChild(svgEl("line", { x1: x(bt), y1: y(0), x2: x(bt), y2: y(pressure), class: "guide" }));
+    waterSvg.appendChild(svgEl("circle", { cx: x(bt), cy: y(pressure), r: 6, class: "marker" }));
+    waterSvg.appendChild(svgEl("text", { x: x(bt), y: y(pressure) - 12, "text-anchor": "middle", class: "legend-text" }, `${bt.toFixed(1)} ℃`));
+
+    $("#boilingTemp").textContent = `${bt.toFixed(1)} ℃`;
+    $("#pressureInterpretation").textContent = `외부 압력이 ${pressure} mmHg일 때 물은 약 ${bt.toFixed(1)} ℃에서 끓습니다.`;
+  }
+
+  const pressureSlider = $("#pressureSlider");
+  function updatePressure() {
+    const p = Number(pressureSlider.value);
+    $("#pressureValue").textContent = p;
+    drawWaterChart(p);
+  }
+  pressureSlider.addEventListener("input", updatePressure);
+  $$(".preset").forEach(btn => btn.addEventListener("click", () => {
+    pressureSlider.value = btn.dataset.pressure;
+    updatePressure();
+  }));
+  $("#checkPressureRelation").addEventListener("click", () => {
+    const v = $("#pressureRelation").value;
+    const el = $("#pressureRelationFeedback");
+    if (!v) { el.textContent = "선택하세요."; el.className = "inline-feedback bad"; return; }
+    if (v === "lower") { el.textContent = "맞습니다. 교점이 더 낮은 온도로 이동합니다."; el.className = "inline-feedback good"; }
+    else { el.textContent = "그래프에서 외부 압력선을 낮춘 뒤 교점의 온도를 다시 확인하세요."; el.className = "inline-feedback bad"; }
+  });
+
+  // STEP 3 approximate multiple liquid curves with Clausius-Clapeyron anchored at normal BP
+  const liquids = {
+    ether:   { name: "다이에틸 에터", bp: 34.5, dh: 26.0, color: "#526d82" },
+    ethanol: { name: "에탄올", bp: 78.2, dh: 38.6, color: "#8b6c47" },
+    water:   { name: "물", bp: 100.0, dh: 40.7, color: "#5d7f68" },
+    acetic:  { name: "아세트산", bp: 117.9, dh: 40.0, color: "#7a648d" }
+  };
+  const R = 8.314;
+  function approxVP(tempC, liq) {
+    const T = tempC + 273.15;
+    const Tb = liq.bp + 273.15;
+    return 760 * Math.exp(-(liq.dh * 1000) / R * (1 / T - 1 / Tb));
+  }
+  const multiSvg = $("#multiChart");
+  function activeLiquids() {
+    return $$('#liquidChecks input:checked').map(c => c.value);
+  }
+  function drawMultiChart() {
+    clearSvg(multiSvg);
+    const { x, y } = drawAxes(multiSvg, [20, 125], [0, 900], [20, 40, 60, 80, 100, 120], [0, 200, 400, 600, 760, 900], "온도 (℃)", "증기압 (mmHg)");
+    const selected = activeLiquids();
+    selected.forEach((key, idx) => {
+      const liq = liquids[key];
+      let d = "";
+      for (let t = 20; t <= 125; t += 1) {
+        const p = Math.min(900, approxVP(t, liq));
+        d += `${t === 20 ? "M" : "L"}${x(t).toFixed(2)},${y(p).toFixed(2)} `;
+      }
+      multiSvg.appendChild(svgEl("path", { d, class: "curve", stroke: liq.color }));
+      const lx = 520, ly = 30 + idx * 22;
+      multiSvg.appendChild(svgEl("line", { x1: lx, y1: ly, x2: lx + 22, y2: ly, stroke: liq.color, "stroke-width": 3 }));
+      multiSvg.appendChild(svgEl("text", { x: lx + 28, y: ly + 4, class: "legend-text" }, `${liq.name} (bp ${liq.bp}℃)`));
+    });
+    multiSvg.appendChild(svgEl("line", { x1: x(20), y1: y(760), x2: x(125), y2: y(760), class: "pressure-line" }));
+    multiSvg.appendChild(svgEl("text", { x: x(22), y: y(760) - 7, class: "legend-text" }, "1 atm = 760 mmHg"));
+
+    const t = Number($("#tempSlider").value);
+    multiSvg.appendChild(svgEl("line", { x1: x(t), y1: y(0), x2: x(t), y2: y(900), class: "guide" }));
+
+    const ranking = selected.map(k => ({ key: k, p: approxVP(t, liquids[k]), ...liquids[k] }))
+      .sort((a, b) => b.p - a.p);
+    $("#liquidRanking").innerHTML = ranking.map((r, i) =>
+      `<div class="rank-item"><span>${i + 1}. ${r.name}</span><strong>${r.p.toFixed(0)} mmHg</strong></div>`
+    ).join("") || "<p class='note'>비교할 액체를 하나 이상 선택하세요.</p>";
+  }
+  $("#tempSlider").addEventListener("input", () => {
+    const t = $("#tempSlider").value;
+    $("#tempValue").textContent = t;
+    $("#tempReadout").textContent = t;
+    drawMultiChart();
+  });
+  $$("#liquidChecks input").forEach(ch => ch.addEventListener("change", drawMultiChart));
+  $("#checkVpBp").addEventListener("click", () => {
+    const v = $("#vpBpRelation").value;
+    const el = $("#vpBpFeedback");
+    if (!v) { el.textContent = "선택하세요."; el.className = "inline-feedback bad"; return; }
+    if (v === "lower") { el.textContent = "맞습니다. 같은 외부 압력에 더 낮은 온도에서 도달합니다."; el.className = "inline-feedback good"; }
+    else { el.textContent = "760 mmHg 수평선과 각 곡선의 교점을 비교해 보세요."; el.className = "inline-feedback bad"; }
+  });
+
+  // STEP 4 tabs
+  $$(".tab").forEach(tab => tab.addEventListener("click", () => {
+    $$(".tab").forEach(t => t.classList.toggle("active", t === tab));
+    $$(".dataset").forEach(p => {
+      const active = p.dataset.panel === tab.dataset.tab;
+      p.hidden = !active;
+      p.classList.toggle("active", active);
+    });
+  }));
+
+  $$("#dipoleChoice button").forEach(btn => btn.addEventListener("click", () => {
+    if (btn.dataset.answer === "dipole") {
+      setFeedback($("#dipoleFeedback"), "좋습니다. 분자량은 오히려 46→44→41로 조금 감소하지만 끓는점은 -25→21→82 ℃로 증가합니다. 쌍극자 모멘트 1.30→2.75→3.93 D의 증가가 끓는점 증가와 일관된 관계를 보입니다.", true, true);
+    } else {
+      setFeedback($("#dipoleFeedback"), "표를 다시 보세요. 분자량은 거의 비슷하고 조금 감소하는데 끓는점은 크게 증가합니다. 어떤 열의 변화 방향이 끓는점과 더 일치하는지 확인하세요.", false, true);
+    }
+  }));
+
+  $$("#dispersionChoice button").forEach(btn => btn.addEventListener("click", () => {
+    if (btn.dataset.answer === "butane") {
+      setFeedback($("#dispersionFeedback"), "맞습니다. 두 분자는 모두 무극성이므로 분산력이 중요합니다. 분자량이 더 큰 뷰테인은 전자 구름이 더 쉽게 편극되어 분산력이 더 크고 끓는점도 높습니다.", true, true);
+    } else {
+      setFeedback($("#dispersionFeedback"), "두 물질 모두 무극성입니다. 분자량과 끓는점 자료를 함께 비교해 다시 예측하세요.", false, true);
+    }
+  }));
+
+  $("#checkHbond").addEventListener("click", () => {
+    const v = $("#hbondSelect").value;
+    if (!v) { setFeedback($("#hbondFeedback"), "하나를 선택하세요.", false, true); return; }
+    if (v === "hbond") {
+      setFeedback($("#hbondFeedback"), "맞습니다. H₂O는 같은 족의 단순한 분산력 경향만으로 설명하기 어려우며, 물 분자 사이의 수소 결합이라는 추가 상호작용을 고려해야 합니다.", true, true);
+    } else {
+      setFeedback($("#hbondFeedback"), "H₂O는 이 네 물질 중 분자량이 가장 작고, 외부 압력도 동일한 조건입니다. ‘분자 사이의 상호작용’이라는 렌즈로 다시 보세요.", false, true);
+    }
+  });
+
+  // STEP 5 chain
+  const chainCards = [
+    { id: "strong", text: "분자 간 상호작용이 강하다" },
+    { id: "escape", text: "액체 입자가 기체 상태로 이동하기 어렵다" },
+    { id: "vp", text: "같은 온도에서 증기압이 낮다" },
+    { id: "heat", text: "외부 압력에 도달하려면 더 높은 온도가 필요하다" },
+    { id: "bp", text: "끓는점이 높다" }
+  ];
+  let chainSelection = [];
+  function renderChain() {
+    const bank = $("#chainBank");
+    bank.innerHTML = "";
+    chainCards.forEach(card => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "chain-card";
+      b.textContent = card.text;
+      b.disabled = chainSelection.includes(card.id);
+      if (b.disabled) b.classList.add("selected");
+      b.addEventListener("click", () => {
+        chainSelection.push(card.id);
+        renderChain();
+      });
+      bank.appendChild(b);
+    });
+    $("#chainResult").innerHTML = chainSelection.map(id => {
+      const card = chainCards.find(c => c.id === id);
+      return `<span class="chain-card">${card.text}</span>`;
+    }).join("");
+  }
+  $("#resetChain").addEventListener("click", () => {
+    chainSelection = [];
+    renderChain();
+    $("#chainFeedback").textContent = "";
+    $("#chainFeedback").className = "feedback";
+  });
+  $("#checkChain").addEventListener("click", () => {
+    const correct = ["strong", "escape", "vp", "heat", "bp"];
+    if (chainSelection.length < correct.length) {
+      setFeedback($("#chainFeedback"), "카드 5개를 모두 배열하세요.", false, true);
+      return;
+    }
+    const ok = chainSelection.every((v, i) => v === correct[i]);
+    if (ok) setFeedback($("#chainFeedback"), "좋습니다. 이 인과 사슬이 ‘분자 간 상호작용’과 ‘증기압–외부 압력–끓는점’을 하나의 설명으로 연결합니다.", true, true);
+    else setFeedback($("#chainFeedback"), "순서를 다시 검토하세요. 먼저 분자 수준의 원인에서 시작해 관찰 가능한 증기압과 끓는점으로 이어져야 합니다.", false, true);
+  });
+
+  // STEP 6
+  $$("#lpgChoice button").forEach(btn => btn.addEventListener("click", () => {
+    if (btn.dataset.answer === "propane") {
+      setFeedback($("#lpgFeedback"), "맞습니다. 프로페인은 뷰테인보다 끓는점이 훨씬 낮아 낮은 온도에서도 더 쉽게 기화합니다.", true, true);
+    } else {
+      setFeedback($("#lpgFeedback"), "끓는점이 낮은 물질이 같은 낮은 온도에서 더 쉽게 기체 상태로 이동한다는 점을 이용해 다시 판단하세요.", false, true);
+    }
+  }));
+
+  // init
+  updatePressure();
+  drawMultiChart();
+  renderChain();
+})();
+
+</script>
+</body>
+</html>
